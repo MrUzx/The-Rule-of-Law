@@ -15,8 +15,11 @@ class CustomTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: TextField(
+        maxLines: null,
         controller: controller,
         decoration: InputDecoration(
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
           hintText: 'xabar kiriting',
           suffixIcon: IconButton(
             onPressed: generateText,
@@ -26,8 +29,12 @@ class CustomTextField extends StatelessWidget {
             ),
           ),
           border: OutlineInputBorder(
-            borderSide: const BorderSide(width: 4,),
-            borderRadius: BorderRadius.circular(15,),
+            borderSide: const BorderSide(
+              width: 4,
+            ),
+            borderRadius: BorderRadius.circular(
+              15,
+            ),
           ),
         ),
       ),

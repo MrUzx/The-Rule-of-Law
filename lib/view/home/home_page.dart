@@ -11,18 +11,20 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("The Rule of Low",
-        style: Theme.of(context).textTheme.displayMedium,
+        title: Text(
+          "The Rule of Low",
+          style: Theme.of(context).textTheme.displayMedium,
         ),
       ),
       resizeToAvoidBottomInset: true,
       body: Consumer<HomeViewModel>(
         builder: (context, viewModel, child) {
-          return Column(
+          return Stack(
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: viewModel.messages.length + (viewModel.isLoading ? 1 : 0),
+                  itemCount:
+                      viewModel.messages.length + (viewModel.isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index < viewModel.messages.length) {
                       final message = viewModel.messages[index];
@@ -65,13 +67,15 @@ class HomePage extends StatelessWidget {
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: CustomTextField(
-                  controller: viewModel.controller,
-                  generateText: viewModel.generateText,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.all(8.0),
+                  child: CustomTextField(
+                    controller: viewModel.controller,
+                    generateText: viewModel.generateText,
+                  ),
                 ),
               ),
             ],
