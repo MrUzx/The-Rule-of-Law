@@ -1,32 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:therule_oflaw/core/router/app_router.dart';
-import 'package:therule_oflaw/view/home/home_page.dart';
+import 'package:therule_oflaw/model/onboarding_model.dart';
 
 class OnboardingViewModel extends ChangeNotifier {
-  PageController _controller = PageController();
-  int _currentPage = 0;
+  final List<OnboardingModel> _onboardingItems = [
+    OnboardingModel(
+      imagePath: 'assets/onboarding_image/image1.png',
+      title: 'Welcome',
+      description: 'Welcome to our app.',
+    ),
+    OnboardingModel(
+      imagePath: 'assets/onboarding_image/image2.png',
+      title: 'Discover',
+      description: 'Discover new features.',
+    ),
+    OnboardingModel(
+      imagePath: 'assets/onboarding_image/image3.png',
+      title: 'Enjoy',
+      description: 'Enjoy using our app.',
+    ),
+  ];
 
-  PageController get controller => _controller;
+  int _currentIndex = 0;
 
-  int get currentPage => _currentPage;
+  List<OnboardingModel> get onboardingItems => _onboardingItems;
 
-  void onPageChanged(int index) {
-    _currentPage = index;
+  int get currentIndex => _currentIndex;
+
+  void nextPage() {
+    if (_currentIndex < _onboardingItems.length - 1) {
+      _currentIndex++;
+      notifyListeners();
+    }
+  }
+
+  void setCurrentIndex(int index) {
+    _currentIndex = index;
     notifyListeners();
   }
 
-  void jumpToPage(int page) {
-    _controller.jumpToPage(page);
-  }
-
-  void nextPage() {
-    _controller.nextPage(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeIn,
-    );
-  }
-
-  void start(BuildContext context) {
-    Navigator.pushReplacementNamed(context, AppRouter.splashRoute);
-  }
+  bool get isLastPage => _currentIndex == _onboardingItems.length - 1;
 }

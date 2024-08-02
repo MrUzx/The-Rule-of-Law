@@ -1,173 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:therule_oflaw/model/onboarding_model.dart';
-import 'package:therule_oflaw/utils/size.dart';
 import 'package:therule_oflaw/view_model/onboarding_viewmodel.dart';
 
 class OnboardingPage extends StatelessWidget {
-  const OnboardingPage({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
-    double width = SizeConfig.screenW!;
-    double height = SizeConfig.screenH!;
+    final PageController pageController = PageController();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              flex: 3,
-              child: PageView.builder(
-                physics: const BouncingScrollPhysics(),
-                controller: context.watch<OnboardingViewModel>().controller,
-                onPageChanged: (value) => context.read<OnboardingViewModel>().onPageChanged(value),
-                itemCount: contents.length,
-                itemBuilder: (context, i) {
-                  return Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          contents[i].image,
-                          height: 300,
-                          width: 400,
-                          fit: BoxFit.cover, // BoxFit.contain, BoxFit.fill va h.k.
-                        ),
-
-                        Text(
-                          contents[i].title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: "Mulish",
-                            fontWeight: FontWeight.w600,
-                            fontSize: (width <= 550) ? 30 : 35,
+      body: Consumer<OnboardingViewModel>(
+        builder: (context, viewModel, child) {
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    controller: pageController,
+                    itemCount: viewModel.onboardingItems.length,
+                    onPageChanged: (index) {
+                      viewModel.setCurrentIndex(index);
+                    },
+                    itemBuilder: (context, index) {
+                      final item = viewModel.onboardingItems[index];
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            item.imagePath,
+                            height: 300,
+                            width: 300,
+                            fit: BoxFit.fill,
                           ),
-                        ),
-                        Text(
-                          contents[i].desc,
-                          style: TextStyle(
-                            fontFamily: "Mulish",
-                            fontWeight: FontWeight.w300,
-                            fontSize: (width <= 550) ? 17 : 25,
+                          SizedBox(height: 20),
+                          Text(
+                            item.title,
+                            style: const TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
                           ),
-                          textAlign: TextAlign.center,
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      contents.length,
-                          (int index) => _buildDots(
-                        context: context,
-                        index: index,
-                      ),
-                    ),
+                          SizedBox(height: 10),
+                          Text(
+                            item.description,
+                            style: TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                  context.watch<OnboardingViewModel>().currentPage + 1 == contents.length
-                      ? Padding(
-                    padding: const EdgeInsets.all(30),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<OnboardingViewModel>().start(context);
-                      },
-                      child: const Text("START"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        padding: (width <= 550)
-                            ? const EdgeInsets.symmetric(
-                            horizontal: 100, vertical: 20)
-                            : EdgeInsets.symmetric(
-                            horizontal: width * 0.2, vertical: 25),
-                        textStyle:
-                        TextStyle(fontSize: (width <= 550) ? 13 : 17),
+                ),
+                Row(
+                  mainAxisAlignment: viewModel.isLastPage ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (!viewModel.isLastPage)
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, '/splash');
+                        },
+                        child: Text('skip', style: Theme.of(context).textTheme.bodyMedium,),
                       ),
-                    ),
-                  )
-                      : Padding(
-                    padding: const EdgeInsets.all(30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
+                    if (!viewModel.isLastPage)
+                      ElevatedButton(
+                        style: Theme.of(context).elevatedButtonTheme.style,
+                        onPressed: () {
+                          if (viewModel.currentIndex <
+                              viewModel.onboardingItems.length - 1) {
+                            pageController.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeIn,
+                            );
+                          }
+                        },
+                        child: Text('Next'),
+                      ),
+                    if (viewModel.isLastPage)
+                      SizedBox(
+                        width: 300,
+                        child: ElevatedButton(
+                          style: Theme.of(context).elevatedButtonTheme.style,
                           onPressed: () {
-                            context.read<OnboardingViewModel>().jumpToPage(2);
+                            Navigator.pushReplacementNamed(context, '/splash');
                           },
-                          child: const Text(
-                            "SKIP",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          style: TextButton.styleFrom(
-                            elevation: 0,
-                            textStyle: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: (width <= 550) ? 13 : 17,
-                            ),
-                          ),
+                          child: Text('Start'),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<OnboardingViewModel>().nextPage();
-                          },
-                          child: const Text("NEXT"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            elevation: 0,
-                            padding: (width <= 550)
-                                ? const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 20)
-                                : const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 25),
-                            textStyle: TextStyle(
-                                fontSize: (width <= 550) ? 13 : 17),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
+                      ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
-    );
-  }
-
-  AnimatedContainer _buildDots({
-    required BuildContext context,
-    int? index,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(50),
-        ),
-        color: context.watch<OnboardingViewModel>().currentPage == index ? Colors.black : Colors.grey,
-      ),
-      margin: const EdgeInsets.only(right: 5),
-      height: 10,
-      curve: Curves.easeIn,
-      width: context.watch<OnboardingViewModel>().currentPage == index ? 20 : 10,
     );
   }
 }
